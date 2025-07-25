@@ -11,17 +11,15 @@ module SolidRail
         when Array then 'uint256[]'
         when Hash then 'mapping(address => uint256)'
         when Symbol then 'enum'
-        else 'uint256'
         end
       end
 
       def map_visibility(ruby_visibility)
-        case ruby_visibility
-        when :public then 'public'
-        when :private then 'private'
-        when :protected then 'internal'
-        else 'public'
-        end
+        {
+          public: 'public',
+          private: 'private',
+          protected: 'internal'
+        }.fetch(ruby_visibility, 'public')
       end
 
       def map_function_type(ruby_method)

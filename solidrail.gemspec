@@ -9,7 +9,8 @@ Gem::Specification.new do |spec|
   spec.email = ['rafael@solidrail.dev']
 
   spec.summary = 'Ruby to Solidity transpiler for smart contract development'
-  spec.description = 'Write smart contracts in Ruby, generate production-ready Solidity code for Ethereum and EVM-compatible blockchains.'
+  spec.description = 'Write smart contracts in Ruby, generate production-ready ' \
+                     'Solidity code for Ethereum and EVM-compatible blockchains.'
   spec.homepage = 'https://github.com/rfdlp/solid-rail'
   spec.license = 'MIT'
   spec.required_ruby_version = '>= 3.0.0'
