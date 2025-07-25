@@ -1,0 +1,106 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'thor'
+require 'solidrail'
+
+module SolidRail
+  # CLI class for the SolidRail transpiler
+  class CLI < Thor
+    desc 'compile FILE', 'Compile a Ruby file to Solidity'
+    option :output, aliases: '-o', desc: 'Output file path'
+    option :optimize, type: :boolean, default: true, desc: 'Enable optimization'
+    option :gas, type: :boolean, default: true, desc: 'Enable gas optimization'
+    option :security, type: :boolean, default: true, desc: 'Enable security checks'
+    def compile(file)
+      unless File.exist?(file)
+        puts "Error: File '#{file}' not found"
+        exit 1
+      end
+
+      # Configure SolidRail based on options
+      SolidRail.configure do |config|
+        config.optimization_enabled = options[:optimize]
+        config.gas_optimization = options[:gas]
+        config.security_checks = options[:security]
+      end
+
+      begin
+        compiler = Compiler.new
+        result = compiler.compile_file(file, options[:output])
+        
+        if result[:errors].any?
+          puts "Compilation failed:"
+          result[:errors].each { |error| puts "  Error: #{error}" }
+          exit 1
+        end
+
+        if result[:warnings].any?
+          puts "Warnings:"
+          result[:warnings].each { |warning| puts "  Warning: #{warning}" }
+        end
+
+        puts "Compilation successful!"
+        puts "Generated Solidity code:"
+        puts result[:code]
+        
+      rescue => e
+        puts "Error: #{e.message}"
+        exit 1
+      end
+    end
+
+    desc 'version', 'Show version information'
+    def version
+      puts "SolidRail v#{SolidRail::VERSION}"
+    end
+
+    desc 'validate FILE', 'Validate a Ruby file for smart contract patterns'
+    def validate(file)
+      unless File.exist?(file)
+        puts "Error: File '#{file}' not found"
+        exit 1
+      end
+
+      source_code = File.read(file)
+      errors = Validator.validate_ruby_code(source_code)
+      
+      if errors.any?
+        puts "Validation failed:"
+        errors.each { |error| puts "  #{error}" }
+        exit 1
+      else
+        puts "Validation passed!"
+      end
+    end
+
+    desc 'parse FILE', 'Parse a Ruby file and show AST'
+    def parse(file)
+      unless File.exist?(file)
+        puts "Error: File '#{file}' not found"
+        exit 1
+      end
+
+      source_code = File.read(file)
+      ast = Parser.parse(source_code)
+      
+      puts "AST for #{file}:"
+      puts JSON.pretty_generate(ast_to_hash(ast))
+    end
+
+    private
+
+    def ast_to_hash(ast_node)
+      {
+        type: ast_node.type,
+        value: ast_node.value,
+        children: ast_node.children&.map { |child| ast_to_hash(child) } || []
+      }
+    end
+  end
+end
+
+# Run CLI if this file is executed directly
+if __FILE__ == $PROGRAM_NAME
+  SolidRail::CLI.start(ARGV)
+end 
