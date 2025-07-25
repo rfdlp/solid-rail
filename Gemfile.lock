@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    solidrail (0.1.0)
+    solidrail (0.1.1)
       colorize (~> 0.8)
       json (~> 2.6)
       parallel (~> 1.22)
