@@ -21,7 +21,7 @@ module SolidRail
       def initialize(node_data)
         if node_data.is_a?(Array) && node_data.length >= 2
           @type = node_data[0]
-          @children = node_data[1..-1].compact.map { |child| ASTNode.new(child) }
+          @children = node_data[1..].compact.map { |child| ASTNode.new(child) }
         else
           @type = :literal
           @value = node_data
